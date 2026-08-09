@@ -26,19 +26,13 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, 
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    // Parse the Argon2 hash
-    let parsed_hash = PasswordHash::new(password_db)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR).unwrap();
-
-    // Verify the password from JSON against the DB hash
-   let _ =  Argon2::default()
-        .verify_password(
-            payload.password.as_bytes(),
-            &parsed_hash,
-        )
-        .map_err(|_| StatusCode::UNAUTHORIZED);
-
-    Ok(StatusCode::OK)
+     if verify_password_details(&payload.password,password_db) == true {
+           return Ok(StatusCode::OK);
+    }
+    else{
+        return Err("Data Not Found".to_string());
+    }
+  
 }
 
 
@@ -63,18 +57,23 @@ pub async fn login_user(Json(payload): Json<Login>) -> Result<StatusCode, String
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    // Parse the Argon2 hash
-    let parsed_hash = PasswordHash::new(password_db)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR).unwrap();
+    if verify_password_details(&payload.password,password_db) == true {
+           return Ok(StatusCode::OK);
+    }
+    else{
+        return Err("Data Not Found".to_string());
+    }
 
-    // Verify the password from JSON against the DB hash
-   let _ =  Argon2::default()
-        .verify_password(
-            payload.password.as_bytes(),
-            &parsed_hash,
-        )
-        .map_err(|_| StatusCode::UNAUTHORIZED);
-
-    Ok(StatusCode::OK)
 }
 
+
+fn verify_password_details(other_password: &str, password_hash: &str) -> bool {
+    let parsed_hash = match PasswordHash::new(password_hash) {
+        Ok(hash) => hash,
+        Err(_) => return false,
+    };
+
+    Argon2::default()
+        .verify_password(other_password.as_bytes(), &parsed_hash)
+        .is_ok()
+}
