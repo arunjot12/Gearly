@@ -1,12 +1,10 @@
-use crate::models::SignupShopkeepers;
-use crate::schema::signup_shopkeepers;
-use crate::schema::signup_shopkeepers::dsl::*;
-use crate::{db::establish_connection, models::Login};
+use crate::{models::SignupShopkeepers, schema::signup_shopkeepers, 
+    schema::signup_shopkeepers::dsl::*,
+    db::establish_connection, models::Login
+};
 use axum::{Json, http::StatusCode};
 use diesel::prelude::*;
-use argon2::PasswordHash;
-use argon2::Argon2;
- use argon2::PasswordVerifier;
+use argon2::{PasswordHash, Argon2, PasswordVerifier};
 
 pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, String> {
     let mut connection = establish_connection();
