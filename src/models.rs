@@ -54,7 +54,7 @@ pub struct SignupShopkeepers {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Login{
     pub username_or_email: String,
     pub password: String

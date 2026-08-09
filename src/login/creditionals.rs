@@ -35,7 +35,7 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, 
   
 }
 
-
+#[axum::debug_handler]
 pub async fn login_user(Json(payload): Json<Login>) -> Result<StatusCode, String> {
     let mut connection = establish_connection();
     let user = crate::schema::users::table
