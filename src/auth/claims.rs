@@ -7,7 +7,8 @@ pub struct AccessClaims{
     pub exp:i64,
     pub email: String,
     pub roles: Vec<String>,
-    pub iat: i64
+    pub iat: i64,
+    pub typ: String
 }
 
 impl AccessClaims{
@@ -18,6 +19,7 @@ impl AccessClaims{
                 exp: (now+ expires_in).timestamp(), 
                 email,
                 roles, 
+                typ: "access".to_string(),
                 iat: now.timestamp() 
             }
         }
@@ -27,3 +29,23 @@ impl AccessClaims{
     }
 }
 
+#[derive(Debug,Deserialize)]
+pub struct RefreshClaims{
+    pub sub: i32,
+    pub exp: i64,
+    pub iat: i64,
+    pub typ : String
+}
+
+impl RefreshClaims {
+    pub fn new(user_id: i32, expires_in: Duration) -> Self {
+        let now = Utc::now();
+
+        Self {
+            sub: user_id,
+            exp: (now + expires_in).timestamp(),
+            iat: now.timestamp(),
+            typ: "refresh".to_string(),
+        }
+    }
+}
