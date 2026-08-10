@@ -8,7 +8,7 @@ use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{Json, http::StatusCode};
 use diesel::prelude::*;
 
-pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, String> {
+pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<Json<String>, String> {
     let mut connection = establish_connection();
     let shopkeeper = signup_shopkeepers::table
         .filter(
@@ -29,11 +29,16 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, 
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    if verify_password_details(&payload.password, password_db) == true {
-        return Ok(StatusCode::OK);
-    } else {
-        return Err("Data Not Found".to_string());
+    if !verify_password_details(&payload.password, password_db) == true {
+        return Err("Invalid Creditionals".to_string());
     }
+
+    let jwt_service = JwtService::new();
+    let token = jwt_service
+        .create_token(shopkeeper.id, "shopkeeper".to_string())
+        .map_err(|_| "Failed to create JWT".to_string())?;
+
+    Ok(Json(token))
 }
 
 #[axum::debug_handler]
