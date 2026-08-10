@@ -29,7 +29,7 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<Json<String>
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    if !verify_password_details(&payload.password, password_db) == true {
+    if !verify_password_details(&payload.password, password_db) {
         return Err("Invalid Creditionals".to_string());
     }
 
@@ -63,7 +63,7 @@ pub async fn login_user(Json(payload): Json<Login>) -> Result<Json<String>, Stri
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    if !verify_password_details(&payload.password, password_db) == true {
+    if !verify_password_details(&payload.password, password_db) {
         return Err("Invalid Creditionals".to_string());
     }
 
