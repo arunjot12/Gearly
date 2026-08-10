@@ -1,9 +1,12 @@
-use crate::{db::establish_connection, models::{Login, SignupShopkeepers, Users}, 
-schema::{signup_shopkeepers::{self, dsl::*}}
+use crate::{
+    auth::jwt::JwtService,
+    db::establish_connection,
+    models::{Login, SignupShopkeepers, Users},
+    schema::signup_shopkeepers::{self, dsl::*},
 };
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{Json, http::StatusCode};
 use diesel::prelude::*;
-use argon2::{PasswordHash, Argon2, PasswordVerifier};
 
 pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, String> {
     let mut connection = establish_connection();
@@ -26,17 +29,15 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<StatusCode, 
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-     if verify_password_details(&payload.password,password_db) == true {
-           return Ok(StatusCode::OK);
-    }
-    else{
+    if verify_password_details(&payload.password, password_db) == true {
+        return Ok(StatusCode::OK);
+    } else {
         return Err("Data Not Found".to_string());
     }
-  
 }
 
 #[axum::debug_handler]
-pub async fn login_user(Json(payload): Json<Login>) -> Result<StatusCode, String> {
+pub async fn login_user(Json(payload): Json<Login>) -> Result<Json<String>, String> {
     let mut connection = establish_connection();
     let user = crate::schema::users::table
         .filter(
@@ -57,15 +58,17 @@ pub async fn login_user(Json(payload): Json<Login>) -> Result<StatusCode, String
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    if verify_password_details(&payload.password,password_db) == true {
-           return Ok(StatusCode::OK);
-    }
-    else{
-        return Err("Data Not Found".to_string());
+    if !verify_password_details(&payload.password, password_db) == true {
+        return Err("Invalid Creditionals".to_string());
     }
 
+    let jwt_service = JwtService::new();
+    let token = jwt_service
+        .create_token(user.id, "Customer".to_string())
+        .map_err(|_| "Failed to create JWT".to_string())?;
+
+    Ok(Json(token))
 }
-
 
 fn verify_password_details(other_password: &str, password_hash: &str) -> bool {
     let parsed_hash = match PasswordHash::new(password_hash) {

@@ -4,14 +4,14 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use std::env;
 
 #[derive(Clone)]
-pub struct JwtSerive {
-    encoding_key: EncodingKey,
-    decoding_key: DecodingKey,
-    access_token_till: Duration,
+pub struct JwtService {
+    pub encoding_key: EncodingKey,
+    pub decoding_key: DecodingKey,
+    pub access_token_till: Duration,
 }
 
-impl JwtSerive {
-    fn new() -> Self {
+impl JwtService {
+    pub fn new() -> Self {
         let secret = env::var("JWT_SECRET")
             .unwrap_or_else(|_| "your-super-secret-key-for-dev-only".to_string());
         Self {
