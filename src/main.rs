@@ -4,6 +4,7 @@ pub mod schema;
 pub mod signup;
 pub mod login;
 pub mod cli;
+pub mod auth;
 use axum::{Router,serve,routing::post};
 use tokio::net::TcpListener;
 use crate::{models::NewSignupShopkeepers, signup::api::{signup_shopkeeper, signup_users} ,login::creditionals::login_user};
