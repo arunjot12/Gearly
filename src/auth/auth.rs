@@ -1,6 +1,6 @@
-use serde::{Deserialize,Serialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UserInfo{
     pub id: i32,
     pub email: String,
@@ -15,13 +15,13 @@ pub struct TokenPair{
     pub expires_in : String
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct RefreshRequest{
-    pub refresh_request: String
+    pub refresh_token: String
 }
 
-#[derive(Debug, Deserialize)]
-pub struct AutheResponse{
+#[derive(Debug, Deserialize, Serialize)]
+pub struct AuthResponse{
     pub user: UserInfo,
     pub tokens: TokenPair
 }
