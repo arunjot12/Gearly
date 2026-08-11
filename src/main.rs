@@ -1,13 +1,18 @@
 pub mod db;
 pub mod models;
 pub mod schema;
+pub mod dashboard;
 pub mod signup;
 pub mod login;
 pub mod cli;
 pub mod auth;
-use axum::{Router,serve,routing::post};
+use axum::{Router,serve,routing::{get,post}};
 use tokio::net::TcpListener;
-use crate::{models::NewSignupShopkeepers, signup::api::{signup_shopkeeper, signup_users} ,login::creditionals::login_user};
+use crate::{models::NewSignupShopkeepers, 
+    signup::api::{signup_shopkeeper, signup_users},
+    login::creditionals::login_user,
+    dashboard::product::protected_dashboard
+};
 
 #[tokio::main]
 async fn main() {
@@ -15,6 +20,7 @@ async fn main() {
     .route("/signup_shopkeeper",post(signup_shopkeeper))
     .route("/signup_user", post(signup_users))
     .route("/login_user", post(login_user))
+    .route("/dashboard",get(protected_dashboard))
     ;
     let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Server Started Bro ");

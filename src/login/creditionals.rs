@@ -84,4 +84,4 @@ fn verify_password_details(other_password: &str, password_hash: &str) -> bool {
     Argon2::default()
         .verify_password(other_password.as_bytes(), &parsed_hash)
         .is_ok()
-}
+}   
