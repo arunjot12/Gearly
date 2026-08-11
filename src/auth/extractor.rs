@@ -1,11 +1,11 @@
 use axum::{
-    extract::FromRequestParts, http::{StatusCode, header, request::Parts}, response::IntoResponse,
+    extract::FromRequestParts, http::{StatusCode, header,request::Parts}, response::IntoResponse,
 };
 use thiserror::Error;
 use super::{
     claims::Claims,
-    jwt::JwtService,
 };
+use crate::auth::jwt::JwtService;
 
 #[derive(Debug,Error)]
 pub enum AuthError{
@@ -30,16 +30,22 @@ impl IntoResponse for AuthError{
         }
 }
 
-impl<S> FromRequestParts<S> for Claims
-where 
-    S: Send + Sync 
+impl FromRequestParts<JwtService> for Claims
 {
     type Rejection = AuthError;
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &S,
+        state: &JwtService,
     ) -> Result<Self, Self::Rejection>
     {
-        
-    }
+        let auth_headers = parts.headers.get(header::AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .filter(|value| value.starts_with("Bearer"))
+        .map(|value | &value[7..]); 
+       
+        match state.verify_token(auth_headers.expect("Reason")) {
+            Ok(claims) => Ok(claims),
+            Err(_) => Err(AuthError::InvalidToken),
+        }
+}
 }
