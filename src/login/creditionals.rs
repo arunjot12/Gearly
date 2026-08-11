@@ -72,6 +72,8 @@ pub async fn login_user(Json(payload): Json<Login>) -> Result<Json<String>, Stri
         .create_token(user.id, "Customer".to_string())
         .map_err(|_| "Failed to create JWT".to_string())?;
 
+    println!(" The JWT token is {:?}",token);
+
     Ok(Json(token))
 }
 
