@@ -8,12 +8,15 @@ pub mod cli;
 pub mod auth;
 use axum::{Router,serve,routing::{get,post}};
 use tokio::net::TcpListener;
-use crate::{models::NewSignupShopkeepers, 
-    signup::api::{signup_shopkeeper, signup_users},
-    login::creditionals::login_user,
-    dashboard::product::protected_dashboard,
-    auth::jwt::JwtService
+use crate::{
+    auth::jwt::JwtService, dashboard::product::protected_dashboard, db::DbPool, login::creditionals::login_user, models::NewSignupShopkeepers, signup::api::{signup_shopkeeper, signup_users},
 };
+
+#[derive(Clone)]
+pub struct AppState{
+    pub db: DbPool,
+    pub jwt: JwtService
+}
 
 #[tokio::main]
 async fn main() {

@@ -1,6 +1,8 @@
-use crate::models::{NewSignupShopkeepers, NewUsers, SignupShopkeepers, Users};
-use crate::schema::{signup_shopkeepers, users};
-use crate::signup::handler::AppError::InvalidCreditionals;
+use crate::{
+    models::{NewSignupShopkeepers, NewUsers, SignupShopkeepers, Users},
+    schema::{signup_shopkeepers, users},
+    signup::handler::AppError::InvalidCreditionals,
+};
 use axum::response::IntoResponse;
 use diesel::{insert_into, mysql::MysqlConnection, prelude::*};
 use reqwest::StatusCode;
@@ -34,7 +36,7 @@ impl IntoResponse for AppError{
 pub fn handle_customer_signup(
     connection: &mut MysqlConnection,
     customer: &NewUsers,
-) -> Result<String, String> {
+) -> Result<String, AppError> {
     let check_customer_number = users::table
         .select(Users::as_select())
         .filter(users::phone_number.eq(&customer.phone_number))
@@ -45,7 +47,7 @@ pub fn handle_customer_signup(
         Ok(_) => {
             println!("Validation is successfully")
         }
-        Err(err) => return Err(err.to_string()),
+        Err(err) => return Err(AppError::Database(err)),
     }
     let insert_result = insert_into(users::table)
         .values(customer)
@@ -53,14 +55,14 @@ pub fn handle_customer_signup(
 
     match insert_result {
         Ok(_) => Ok("✅ Shopkeeper registered successfully!".to_string()),
-        Err(err) => return Err(err.to_string()),
+        Err(err) => return Err(AppError::Database(err)),
     }
 }
 
 pub fn handle_shopkeeper_signup(
     connection: &mut MysqlConnection,
     shopkeeper: &NewSignupShopkeepers,
-) -> Result<String, String> {
+) -> Result<String, AppError> {
     if let Some(ref phone) = shopkeeper.phone_number {
         let check_shopkeeper_number: Result<Option<SignupShopkeepers>, _> =
             signup_shopkeepers::table
@@ -73,7 +75,7 @@ pub fn handle_shopkeeper_signup(
             Ok(_) => {
                 println!("Validation is successfully")
             }
-            Err(err) => return Err(err.to_string()),
+        Err(err) => return Err(AppError::Database(err)),
         }
     }
 
@@ -83,6 +85,6 @@ pub fn handle_shopkeeper_signup(
 
     match insert_result {
         Ok(_) => Ok("✅ Shopkeeper registered successfully!".to_string()),
-        Err(err) => return Err(err.to_string()),
+        Err(err) => return Err(AppError::Database(err)),
     }
 }
