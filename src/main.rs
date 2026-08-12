@@ -20,8 +20,6 @@ async fn main() {
     let jwt_service = JwtService::new();
 
     let app = Router::new()
-        .route("/test", get(|| async { "Hello" }))
-
     .route("/signup_shopkeeper",post(signup_shopkeeper))
     .route("/signup_user", post(signup_users))
     .route("/login_user", post(login_user))

@@ -1,6 +1,9 @@
 use crate::models::{NewSignupShopkeepers, NewUsers, SignupShopkeepers, Users};
 use crate::schema::{signup_shopkeepers, users};
+use crate::signup::handler::AppError::InvalidCreditionals;
+use axum::response::IntoResponse;
 use diesel::{insert_into, mysql::MysqlConnection, prelude::*};
+use reqwest::StatusCode;
 
 #[derive(Debug,thiserror::Error)]
 pub enum AppError {
@@ -15,6 +18,17 @@ pub enum AppError {
 
     #[error("Internal Server Error")]
     Internal
+}
+
+impl IntoResponse for AppError{
+        fn into_response(self) -> axum::response::Response {
+            match self{
+                InvalidCreditionals => (StatusCode::UNAUTHORIZED, "Invalid creditionals".to_string()).into_response(),
+                AppError::UserNotFound => (StatusCode::NOT_FOUND, "User not found".to_string()).into_response(),
+                AppError::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error".to_string()).into_response(),
+                AppError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error".to_string()).into_response()
+            }
+        }
 }
 
 pub fn handle_customer_signup(

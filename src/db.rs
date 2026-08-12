@@ -1,7 +1,7 @@
+use diesel::Connection;
+use diesel::mysql::MysqlConnection;
 use dotenv::dotenv;
 use std::env;
-use diesel::mysql::MysqlConnection;
-use diesel::Connection;
 
 pub fn establish_connection() -> MysqlConnection {
     dotenv().ok();
