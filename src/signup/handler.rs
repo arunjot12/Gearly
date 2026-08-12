@@ -2,6 +2,21 @@ use crate::models::{NewSignupShopkeepers, NewUsers, SignupShopkeepers, Users};
 use crate::schema::{signup_shopkeepers, users};
 use diesel::{insert_into, mysql::MysqlConnection, prelude::*};
 
+#[derive(Debug,thiserror::Error)]
+pub enum AppError {
+    #[error("invalid creditionals")]
+    InvalidCreditionals,
+
+    #[error("User Not Found")]
+    UserNotFound,
+
+    #[error("Database error")]
+    Database(#[from]diesel::result::Error),
+
+    #[error("Internal Server Error")]
+    Internal
+}
+
 pub fn handle_customer_signup(
     connection: &mut MysqlConnection,
     customer: &NewUsers,

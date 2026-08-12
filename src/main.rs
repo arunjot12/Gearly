@@ -26,8 +26,8 @@ async fn main() {
     .route("/signup_user", post(signup_users))
     .route("/login_user", post(login_user))
     .route("/dashboard",get(protected_dashboard))
-    .with_state(jwt_service)
-    ;
+    .with_state(jwt_service);
+
     let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
     println!("Server Started Bro ");
     serve(listener, app).await.unwrap();
