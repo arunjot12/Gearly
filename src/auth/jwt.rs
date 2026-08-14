@@ -17,7 +17,7 @@ impl JwtService {
         Self {
             encoding_key: EncodingKey::from_secret(secret.as_bytes()),
             decoding_key: DecodingKey::from_secret(secret.as_bytes()),
-            access_token_till: Duration::minutes(15),
+            access_token_till: Duration::minutes(90),
         }
     }
 
