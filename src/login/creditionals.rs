@@ -29,14 +29,17 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>, State(state): State<Ap
         Err(_) => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    let password_db = match &shopkeeper.password {
+    let password_db = match shopkeeper.password {
         Some(hash) => hash,
         None => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
 
-    if !verify_password_details(&payload.password, password_db) {
-        return Err("Invalid Creditionals".to_string());
-    }
+    let _ = tokio::task::spawn_blocking(move ||{
+        if !verify_password_details(&payload.password, &password_db) {
+                return Err("Invalid Creditionals".to_string());
+            }
+            Ok(())
+    }).await;
 
     let jwt_service = JwtService::new();
     let token = jwt_service
