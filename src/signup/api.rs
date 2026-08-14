@@ -9,9 +9,10 @@ use crate::{
 };
 use axum::{Json, extract::State, http::StatusCode};
 
+#[axum::debug_handler]
 pub async fn signup_shopkeeper(
+     State(state): State<AppState>,
     Json(payload): Json<NewSignupShopkeepers>,
-    State(state): State<AppState>,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
     let shopkeeper = match check_signup_shopkeeper(payload) {
         Ok(shopkeeper) => shopkeeper,
@@ -38,9 +39,10 @@ pub async fn signup_shopkeeper(
     }
 }
 
+#[axum::debug_handler]
 pub async fn signup_users(
-    Json(payload): Json<NewUsers>,
     State(state): State<AppState>,
+    Json(payload): Json<NewUsers>,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
     let user = match check_signup_user(payload) {
         Ok(shopkeeper) => shopkeeper,

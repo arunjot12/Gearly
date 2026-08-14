@@ -20,8 +20,8 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>, State(state): State<Ap
         .first::<SignupShopkeepers>(conn)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
      ).await.
-     map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-    );
+     map_err(|e|  e.to_string()
+    )?;
 
 
     let shopkeeper = match shopkeeper {
@@ -49,16 +49,21 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>, State(state): State<Ap
 #[axum::debug_handler]
 pub async fn login_user(State(state): State<AppState>, Json(payload): Json<Login>) -> Result<Json<String>, String> {
     let connection = state.db.get().await.expect("Failed to get DB connection from pool");
-    let user = crate::schema::users::table
+
+     let users = connection.interact(move | conn| 
+    crate::schema::users::table
         .filter(
-            crate::schema::users::dsl::email
+           crate::schema::users::dsl::email
                 .eq(&payload.username_or_email)
                 .or(crate::schema::users::username.eq(&payload.username_or_email)),
         )
-        .first::<Users>(&mut connection)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR);
+        .first::<Users>(conn)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+     ).await.
+     map_err(|e|  e.to_string()
+    )?;
 
-    let user = match user {
+    let user = match users {
         Ok(user) => user,
         Err(_) => return Err(StatusCode::UNAUTHORIZED.to_string()),
     };
