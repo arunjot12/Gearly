@@ -1,23 +1,28 @@
 use crate::{
     auth::jwt::JwtService,
-    db::establish_connection,
     models::{Login, SignupShopkeepers, Users},
     schema::signup_shopkeepers::{self, dsl::*},
+    AppState
 };
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use axum::{Json, http::StatusCode};
+use axum::{Json, http::StatusCode,extract::State};
 use diesel::prelude::*;
 
-pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<Json<String>, String> {
-    let mut connection = establish_connection();
-    let shopkeeper = signup_shopkeepers::table
+pub async fn login_shopkeeper(Json(payload): Json<Login>, State(state): State<AppState>) -> Result<Json<String>, String> {
+    let connection = state.db.get().await.expect("Failed to get DB connection from pool");
+    let shopkeeper = connection.interact(move | conn| 
+    signup_shopkeepers::table
         .filter(
             email
                 .eq(&payload.username_or_email)
                 .or(signup_shopkeepers::username.eq(&payload.username_or_email)),
         )
-        .first::<SignupShopkeepers>(&mut connection)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR);
+        .first::<SignupShopkeepers>(conn)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+     ).await.
+     map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+    );
+
 
     let shopkeeper = match shopkeeper {
         Ok(shopkeeper) => shopkeeper,
@@ -42,8 +47,8 @@ pub async fn login_shopkeeper(Json(payload): Json<Login>) -> Result<Json<String>
 }
 
 #[axum::debug_handler]
-pub async fn login_user(Json(payload): Json<Login>) -> Result<Json<String>, String> {
-    let mut connection = establish_connection();
+pub async fn login_user(State(state): State<AppState>, Json(payload): Json<Login>) -> Result<Json<String>, String> {
+    let connection = state.db.get().await.expect("Failed to get DB connection from pool");
     let user = crate::schema::users::table
         .filter(
             crate::schema::users::dsl::email

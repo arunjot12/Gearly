@@ -5,7 +5,7 @@ use thiserror::Error;
 use super::{
     claims::Claims,
 };
-use crate::{AppState, auth::jwt::JwtService};
+use crate::AppState;
 
 #[derive(Debug,Error)]
 pub enum AuthError{
