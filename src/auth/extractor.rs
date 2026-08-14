@@ -5,7 +5,7 @@ use thiserror::Error;
 use super::{
     claims::Claims,
 };
-use crate::auth::jwt::JwtService;
+use crate::{AppState, auth::jwt::JwtService};
 
 #[derive(Debug,Error)]
 pub enum AuthError{
@@ -30,12 +30,12 @@ impl IntoResponse for AuthError{
         }
 }
 
-impl FromRequestParts<JwtService> for Claims
+impl FromRequestParts<AppState> for Claims
 {
     type Rejection = AuthError;
     async fn from_request_parts(
         parts: &mut Parts,
-        state: &JwtService,
+        state: &AppState,
     ) -> Result<Self, Self::Rejection>
     {
         let auth_headers = parts.headers.get(header::AUTHORIZATION)
@@ -43,7 +43,7 @@ impl FromRequestParts<JwtService> for Claims
         .filter(|value| value.starts_with("Bearer"))
         .map(|value | &value[7..]); 
        
-        match state.verify_token(auth_headers.expect("Reason")) {
+        match state.jwt.verify_token(auth_headers.expect("Reason")) {
             Ok(claims) => Ok(claims),
             Err(_) => Err(AuthError::InvalidToken),
         }
