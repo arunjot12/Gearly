@@ -10,8 +10,11 @@ Gearly is a platform connecting car parts shopkeepers with users.
 - **Shopkeepers** can register, manage their inventory, and list car parts.
 - **Users** can browse parts, search for specific items, and place orders.
 
-## Development Progress
-We are actively developing this project. Check out the [ROADMAP.md](./ROADMAP.md) for a detailed breakdown of completed tasks and next steps.
+## Features & Progress
+- ✅ **Authentication:** Production-ready signup and login flows for both Users and Shopkeepers.
+- ✅ **Security:** Asynchronous Argon2 password hashing and secure JWT-based stateless authorization.
+- ✅ **Database:** Connection pooling with `deadpool-diesel` for optimized MySQL operations.
+- 🚧 **Dashboard & Inventory Management:** (Work in Progress)
 
 ## Tech Stack
 - **Web Framework:** [Axum](https://github.com/tokio-rs/axum)
