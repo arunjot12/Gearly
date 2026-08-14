@@ -6,7 +6,7 @@ use argon2::{
 use rand_core::OsRng;
 use validator::ValidateEmail;
 
-pub fn check_signup_user(req: NewUsers) -> Result<NewUsers, String> {
+pub async fn check_signup_user(req: NewUsers) -> Result<NewUsers, String> {
     if !req.email.validate_email() {
         return Err("Invalid email".into());
     }
@@ -14,18 +14,24 @@ pub fn check_signup_user(req: NewUsers) -> Result<NewUsers, String> {
         return Err("Phone number should be 10 digits".into());
     }
 
-    let argon = Argon2::default();
-    let salt = SaltString::generate(&mut OsRng);
-    let password = argon
-        .hash_password(req.password.as_bytes(), &salt)
-        .unwrap()
-        .to_string();
+    let password = req.password;
+
+    let hashed_password = tokio::task::spawn_blocking(move || {
+        let argon = Argon2::default();
+        let salt = SaltString::generate(&mut OsRng);
+        argon
+            .hash_password(password.as_bytes(), &salt)
+            .map(|hash| hash.to_string())
+            .map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|_| "Task panicked".to_string())??;
 
     Ok(NewUsers {
         first_name: req.first_name,
         username: req.username,
         email: req.email,
         phone_number: req.phone_number,
-        password,
+        password: hashed_password,
     })
 }

@@ -87,12 +87,11 @@ pub fn handle_shopkeeper_signup(
                 .first(connection)
                 .optional();
 
-        match check_shopkeeper_number {
-            Ok(_) => {
-                println!("Validation is successfully")
-            }
-            Err(err) => return Err(AppError::Database(err)),
-        }
+      match check_shopkeeper_number {
+        Ok(Some(_)) => return Err(AppError::UserAlreadyExists), // You need to define this error
+        Ok(None) => {}                                          // Good, no user found, proceed
+         Err(err) => return Err(AppError::Database(err)),
+    }
     }
 
     let insert_result = insert_into(signup_shopkeepers::table)

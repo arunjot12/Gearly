@@ -14,7 +14,7 @@ pub async fn signup_shopkeeper(
      State(state): State<AppState>,
     Json(payload): Json<NewSignupShopkeepers>,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
-    let shopkeeper = match check_signup_shopkeeper(payload) {
+    let shopkeeper = match check_signup_shopkeeper(payload).await {
         Ok(shopkeeper) => shopkeeper,
         Err(err) => {
             return Err((StatusCode::BAD_REQUEST, err.to_string()));
@@ -44,7 +44,7 @@ pub async fn signup_users(
     State(state): State<AppState>,
     Json(payload): Json<NewUsers>,
 ) -> Result<(StatusCode, String), (StatusCode, String)> {
-    let user = match check_signup_user(payload) {
+    let user = match check_signup_user(payload).await {
         Ok(shopkeeper) => shopkeeper,
         Err(err) => {
             return Err((StatusCode::BAD_REQUEST, err.to_string()));
