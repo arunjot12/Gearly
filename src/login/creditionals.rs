@@ -1,5 +1,5 @@
 use crate::{
-    AppState, auth::jwt::JwtService, models::{Login, SignupShopkeepers, Users}, schema::signup_shopkeepers::{self, dsl::*}, signup::handler::AppError,
+    AppState, models::{Login, SignupShopkeepers, Users}, schema::signup_shopkeepers::{self, dsl::*}, signup::handler::AppError,
 };
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{Json, extract::State, http::StatusCode};
@@ -51,8 +51,7 @@ pub async fn login_shopkeeper(
     .map_err(|_| AppError::ThreadError("Task panicked".to_string()))? // Handle join error
     .map_err(|e| AppError::ThreadError(e))?; // Handle the inner error from the closure
 
-    let jwt_service = JwtService::new();
-    let token = jwt_service
+    let token = state.jwt
         .create_token(shopkeeper.id, "shopkeeper".to_string())
         .map_err(|_| AppError::ThreadError("Failed to create jwt".to_string()))?;
 
@@ -105,8 +104,7 @@ pub async fn login_user(
     .map_err(|_| AppError::ThreadError("Task panicked".to_string()))? // Handle join error
     .map_err(|e| AppError::ThreadError(e))?; // Handle the inner error from the closure
 
-    let jwt_service = JwtService::new();
-    let token = jwt_service
+    let token = state.jwt
         .create_token(user.id, "Customer".to_string())
         .map_err(|_| AppError::ThreadError("Failed to create jwt".to_string()))?;
 
