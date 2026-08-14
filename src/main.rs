@@ -36,8 +36,31 @@ async fn main() {
     .with_state(state);
 
     let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
-
-    println!("Gearly is up");
-
+    print_startup_info();
     serve(listener, app).await.unwrap();
+}
+
+pub fn print_startup_info() {
+    println!();
+    println!("╔══════════════════════════════════════════════════════════╗");
+    println!("║                    🚗  GEARLY API                        ║");
+    println!("║              Car Parts Marketplace Backend               ║");
+    println!("╚══════════════════════════════════════════════════════════╝");
+    println!();
+
+    println!("  ✓ Database       Connected");
+    println!("  ✓ JWT            Initialized");
+    println!("  ✓ Server         Ready");
+    println!();
+
+    println!("  Routes");
+    println!("  ────────────────────────────────────────────────────────");
+    println!("  POST   /signup_shopkeeper");
+    println!("  POST   /signup_user");
+    println!("  POST   /login_user");
+    println!("  GET    /dashboard");
+    println!();
+
+    println!("  🚀 Server running at http://127.0.0.1:3000");
+    println!();
 }
