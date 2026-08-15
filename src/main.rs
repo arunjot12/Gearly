@@ -6,6 +6,7 @@ pub mod signup;
 pub mod login;
 pub mod cli;
 pub mod auth;
+
 use axum::{Router,serve,routing::{get,post}};
 use tokio::net::TcpListener;
 use crate::{
@@ -35,7 +36,16 @@ async fn main() {
     .route("/dashboard",get(protected_dashboard))
     .with_state(state);
 
-    let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
+    let port: u16 = std::env::var("PORT")
+    .ok()
+    .and_then(|p| p.parse().ok())
+    .unwrap_or(3000);
+
+let listener = TcpListener::bind(format!("0.0.0.0:{port}"))
+    .await
+    .unwrap_or_else(|e| panic!("failed to bind to port {port}: {e}"));
+
+    
     print_startup_info();
     serve(listener, app).await.unwrap();
 }
