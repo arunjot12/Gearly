@@ -41,11 +41,12 @@ async fn main() {
     .and_then(|p| p.parse().ok())
     .unwrap_or(3000);
 
-let listener = TcpListener::bind(format!("0.0.0.0:{port}"))
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}"))
     .await
     .unwrap_or_else(|e| panic!("failed to bind to port {port}: {e}"));
 
-    
+    tracing::info!(port, "🚀 server listening");
+
     print_startup_info();
     serve(listener, app).await.unwrap();
 }
