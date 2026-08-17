@@ -7,8 +7,9 @@ pub mod login;
 pub mod cli;
 pub mod auth;
 
-use axum::{Router,serve,routing::{get,post}};
+use axum::{Json, Router, routing::{get,post}, serve};
 use tokio::net::TcpListener;
+use serde_json::{json,Value};
 use crate::{
     auth::jwt::JwtService, 
     dashboard::product::protected_dashboard, 
@@ -34,6 +35,7 @@ async fn main() {
     .route("/signup_user", post(signup_users))
     .route("/login_user", post(login_user))
     .route("/dashboard",get(protected_dashboard))
+    .route("/health",get(health_check))
     .with_state(state);
 
     let port: u16 = std::env::var("PORT")
@@ -63,15 +65,24 @@ pub fn print_startup_info() {
     println!("  ✓ JWT            Initialized");
     println!("  ✓ Server         Ready");
     println!();
-
     println!("  Routes");
     println!("  ────────────────────────────────────────────────────────");
     println!("  POST   /signup_shopkeeper");
     println!("  POST   /signup_user");
     println!("  POST   /login_user");
     println!("  GET    /dashboard");
+    println!("  GET    /health");
+
     println!();
 
     println!("  🚀 Server running at http://127.0.0.1:3000");
     println!();
+}
+
+#[axum::debug_handler]
+pub async fn health_check() -> Json<Value> {
+    Json(json!({
+        "status": "ready"
+    }
+    ))
 }
