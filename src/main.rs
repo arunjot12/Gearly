@@ -4,7 +4,6 @@ pub mod schema;
 pub mod dashboard;
 pub mod signup;
 pub mod login;
-pub mod cli;
 pub mod auth;
 
 use axum::{Json, Router, routing::{get,post}, serve};
