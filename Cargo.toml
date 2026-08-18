@@ -21,3 +21,4 @@ thiserror = "2.0.20"
 deadpool-diesel = { version = "0.6.1", features = ["mysql"] }
 tracing = "0.1.44"
 serde_json = "1.0.151"
+tower-http = "0.7.0"
