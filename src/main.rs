@@ -5,6 +5,7 @@ pub mod dashboard;
 pub mod signup;
 pub mod login;
 pub mod auth;
+pub mod cors;
 
 use axum::{Json, Router, routing::{get,post}, serve};
 use tokio::net::TcpListener;
@@ -14,6 +15,7 @@ use crate::{
     dashboard::product::protected_dashboard, 
     db::{create_pool,DbPool}, login::creditionals::login_user, models::NewSignupShopkeepers, 
     signup::api::{signup_shopkeeper, signup_users},
+    cors::cors_allow
 };
 
 #[derive(Clone)]
@@ -35,6 +37,7 @@ async fn main() {
     .route("/login_user", post(login_user))
     .route("/dashboard",get(protected_dashboard))
     .route("/health",get(health_check))
+    .layer(cors_allow())
     .with_state(state);
 
     let port: u16 = std::env::var("PORT")
